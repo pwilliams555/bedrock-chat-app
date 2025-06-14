@@ -44,9 +44,7 @@
         }
 
         .header {
-            background-color: var(--bg-secondary);
-            padding: 1rem;
-            border-bottom: 1px solid var(--border-color);
+            display: none; /* Hide the header completely */
         }
 
         .controls {
@@ -57,7 +55,7 @@
             display: flex;
             flex: 1;
             position: relative;
-            height: calc(100vh - 70px); /* Only subtract header height */
+            height: 100vh; /* Full height - no header */
             overflow: hidden;
         }
 
@@ -185,6 +183,37 @@
             gap: 10px;
             z-index: 100; /* Ensure it stays above content */
             box-sizing: border-box; /* Include padding in width calculation */
+        }
+        
+        /* Sidebar user info at bottom */
+        .sidebar-user-info {
+            padding: 1rem;
+            border-top: 1px solid var(--border-color);
+            background-color: var(--bg-secondary);
+            flex-shrink: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .sidebar-user-info .user-info {
+            flex: 1;
+        }
+        
+        .sidebar-user-info .sign-out-button {
+            background: none;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .sidebar-user-info .sign-out-button:hover {
+            background-color: var(--hover-color);
         }
 
         .input-container {
@@ -2313,6 +2342,14 @@
                 <button onclick="refreshChatList()" style="float: right; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px;" title="Refresh Chat List">↻</button>
             </div>
             <div id="chatList"></div>
+            
+            <!-- User Info at Bottom -->
+            <div class="sidebar-user-info">
+                <div class="user-info" id="userInfo"></div>
+                <button id="signOutButton" class="sign-out-button" style="display: none;">
+                    Sign Out
+                </button>
+            </div>
         </div>
             <div class="chat-main">
                 <div id="chatbox"></div>
