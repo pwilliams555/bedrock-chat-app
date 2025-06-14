@@ -1227,6 +1227,7 @@
 
         // Set up dev indicators
         function setupDevIndicators() {
+            console.log('Setting up dev indicators, current URL:', window.location.href);
             if (isDevMode()) {
                 console.log('🔧 Running in DEVELOPMENT mode');
                 
@@ -1235,8 +1236,12 @@
                 
                 // Show dev badge
                 const devBadge = document.getElementById('devBadge');
+                console.log('Found devBadge element:', devBadge);
                 if (devBadge) {
                     devBadge.style.display = 'inline-block';
+                    console.log('DEV badge should now be visible');
+                } else {
+                    console.error('DEV badge element not found!');
                 }
                 
                 // Add a subtle visual indicator by slightly changing the header color
@@ -1548,8 +1553,15 @@
                 minute: '2-digit',
                 timeZoneName: 'short'
             };
-            document.getElementById('lastModified').textContent = 
-                `Last modified: ${lastModified.toLocaleString('en-US', options)}`;
+            const lastModifiedElement = document.getElementById('lastModified');
+            console.log('Found lastModified element:', lastModifiedElement);
+            if (lastModifiedElement) {
+                const timeText = `Last modified: ${lastModified.toLocaleString('en-US', options)}`;
+                lastModifiedElement.textContent = timeText;
+                console.log('Set timestamp to:', timeText);
+            } else {
+                console.error('lastModified element not found!');
+            }
 
             // Initialize feedback list
             loadFeedbackList();
