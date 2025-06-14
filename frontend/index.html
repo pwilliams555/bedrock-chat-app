@@ -282,6 +282,9 @@
             justify-content: space-between;
             align-items: center;
             flex-shrink: 0;
+            background-color: var(--bg-secondary);
+            min-height: 40px;
+            box-sizing: border-box;
         }
         
         .dev-badge {
@@ -2475,7 +2478,7 @@
             </div>
             
             <!-- Status Info (DEV badge and timestamp) -->
-            <div class="sidebar-status">
+            <div class="sidebar-status" style="display: flex;">
                 <div>
                     <span class="dev-badge" id="devBadge" style="display: none;">DEV</span>
                 </div>
