@@ -68,11 +68,51 @@
             overflow: hidden;
         }
 
-        /* Sidebar Controls Styling */
-        .sidebar-controls {
+        /* Sidebar New Chat Button */
+        .sidebar-new-chat {
             padding: 1rem;
             border-bottom: 1px solid var(--border-color);
             flex-shrink: 0;
+        }
+        
+        /* Collapsible Settings */
+        .sidebar-settings {
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        
+        .settings-header {
+            padding: 1rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 500;
+            user-select: none;
+        }
+        
+        .settings-header:hover {
+            background-color: var(--hover-color);
+        }
+        
+        .collapse-icon {
+            transition: transform 0.2s;
+            font-size: 14px;
+        }
+        
+        .collapse-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+        
+        .settings-content {
+            padding: 0 1rem 1rem 1rem;
+            transition: max-height 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .settings-content.collapsed {
+            max-height: 0;
+            padding: 0 1rem;
         }
         
         .new-chat-btn-sidebar {
@@ -187,6 +227,7 @@
         
         /* Sidebar user info at bottom */
         .sidebar-user-info {
+            margin-top: auto;
             padding: 1rem;
             border-top: 1px solid var(--border-color);
             background-color: var(--bg-secondary);
@@ -1275,6 +1316,12 @@
             userInfo.style.display = 'block';
             userInfo.innerHTML = `Signed in as: <strong>${account.username}</strong>`;
             document.getElementById('signOutButton').style.display = 'inline-flex';
+            
+            // Also show sidebar user info
+            const sidebarUserInfo = document.getElementById('sidebarUserInfo');
+            if (sidebarUserInfo) {
+                sidebarUserInfo.style.display = 'flex';
+            }
         }
 
         // Show main content after authentication
@@ -2249,6 +2296,15 @@
                 }
             }
         }
+        
+        // Toggle collapsible settings section
+        function toggleSettings() {
+            const content = document.getElementById('settingsContent');
+            const icon = document.getElementById('settingsIcon');
+            
+            content.classList.toggle('collapsed');
+            icon.classList.toggle('collapsed');
+        }
     </script>
 </head>
 <body>
@@ -2307,32 +2363,41 @@
 
         <div class="chat-container">
                     <div class="chat-history-panel">
-            <!-- Main Controls Section -->
-            <div class="sidebar-controls">
+            <!-- New Chat Button -->
+            <div class="sidebar-new-chat">
                 <button onclick="startNewChat()" class="new-chat-btn-sidebar">+ New Chat</button>
-                
-                <div class="sidebar-section">
-                    <label for="modelSelect">Model</label>
-                    <select id="modelSelect">
-                        <option value="arn:aws:bedrock:us-east-1:401390491831:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0">Claude 3.7 Sonnet</option>
-                        <option value="arn:aws:bedrock:us-east-1:401390491831:inference-profile/us.anthropic.claude-3-5-sonnet-20241022-v2:0">Claude 3.5 Sonnet v2</option>
-                        <option value="amazon.nova-micro-v1:0">Nova Micro</option>
-                        <option value="amazon.nova-lite-v1:0">Nova Lite</option>
-                        <option value="amazon.nova-pro-v1:0">Nova Pro</option>
-                    </select>
+            </div>
+            
+            <!-- Collapsible Settings Section -->
+            <div class="sidebar-settings">
+                <div class="settings-header" onclick="toggleSettings()">
+                    <span>⚙️ Settings</span>
+                    <span class="collapse-icon" id="settingsIcon">▼</span>
                 </div>
-                
-                <div class="sidebar-section">
-                    <label for="kbSelect">Knowledge Base</label>
-                    <select id="kbSelect">
-                        <option value="none">None</option>
-                    </select>
-                </div>
-                
-                <div class="sidebar-buttons">
-                    <button onclick="showTestModal()" class="sidebar-btn">Test All Models</button>
-                    <button onclick="toggleFeedbackList()" class="sidebar-btn">View Feedback</button>
-                    <button onclick="showFeedbackModal()" class="sidebar-btn">Give Feedback</button>
+                <div class="settings-content" id="settingsContent">
+                    <div class="sidebar-section">
+                        <label for="modelSelect">Model</label>
+                        <select id="modelSelect">
+                            <option value="arn:aws:bedrock:us-east-1:401390491831:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0">Claude 3.7 Sonnet</option>
+                            <option value="arn:aws:bedrock:us-east-1:401390491831:inference-profile/us.anthropic.claude-3-5-sonnet-20241022-v2:0">Claude 3.5 Sonnet v2</option>
+                            <option value="amazon.nova-micro-v1:0">Nova Micro</option>
+                            <option value="amazon.nova-lite-v1:0">Nova Lite</option>
+                            <option value="amazon.nova-pro-v1:0">Nova Pro</option>
+                        </select>
+                    </div>
+                    
+                    <div class="sidebar-section">
+                        <label for="kbSelect">Knowledge Base</label>
+                        <select id="kbSelect">
+                            <option value="none">None</option>
+                        </select>
+                    </div>
+                    
+                    <div class="sidebar-buttons">
+                        <button onclick="showTestModal()" class="sidebar-btn">Test All Models</button>
+                        <button onclick="toggleFeedbackList()" class="sidebar-btn">View Feedback</button>
+                        <button onclick="showFeedbackModal()" class="sidebar-btn">Give Feedback</button>
+                    </div>
                 </div>
             </div>
             
@@ -2344,9 +2409,9 @@
             <div id="chatList"></div>
             
             <!-- User Info at Bottom -->
-            <div class="sidebar-user-info">
+            <div class="sidebar-user-info" id="sidebarUserInfo" style="display: none;">
                 <div class="user-info" id="userInfo"></div>
-                <button id="signOutButton" class="sign-out-button" style="display: none;">
+                <button id="signOutButton" class="sign-out-button" onclick="signOut()">
                     Sign Out
                 </button>
             </div>
