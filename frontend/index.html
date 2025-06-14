@@ -115,6 +115,11 @@
             padding: 0 1rem;
         }
         
+        /* Set initial collapsed state */
+        .settings-content {
+            max-height: 500px; /* When expanded */
+        }
+        
         .new-chat-btn-sidebar {
             width: 100%;
             padding: 12px 16px;
@@ -1317,10 +1322,13 @@
             userInfo.innerHTML = `Signed in as: <strong>${account.username}</strong>`;
             document.getElementById('signOutButton').style.display = 'inline-flex';
             
-            // Also show sidebar user info
+            // Also show sidebar user info with username
             const sidebarUserInfo = document.getElementById('sidebarUserInfo');
-            if (sidebarUserInfo) {
+            const sidebarUserInfoDiv = document.getElementById('userInfo');
+            if (sidebarUserInfo && sidebarUserInfoDiv) {
                 sidebarUserInfo.style.display = 'flex';
+                // Make sure the username shows in sidebar too
+                sidebarUserInfoDiv.innerHTML = `${account.username}`;
             }
         }
 
@@ -2372,9 +2380,9 @@
             <div class="sidebar-settings">
                 <div class="settings-header" onclick="toggleSettings()">
                     <span>⚙️ Settings</span>
-                    <span class="collapse-icon" id="settingsIcon">▼</span>
+                    <span class="collapse-icon collapsed" id="settingsIcon">▼</span>
                 </div>
-                <div class="settings-content" id="settingsContent">
+                <div class="settings-content collapsed" id="settingsContent">
                     <div class="sidebar-section">
                         <label for="modelSelect">Model</label>
                         <select id="modelSelect">
