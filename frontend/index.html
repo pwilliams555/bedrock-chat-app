@@ -299,15 +299,7 @@
         
         .last-modified {
             font-size: 10px;
-            color: #ffffff !important;
-            display: block !important;
-            padding: 2px 4px;
-            border-radius: 3px;
-            white-space: nowrap;
-            text-align: right;
-            min-width: 80px;
-            background-color: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--text-secondary);
         }
 
         .input-container {
@@ -416,11 +408,6 @@
             color: var(--text-primary);
         }
 
-        .last-modified {
-            font-size: 12px;
-            color: var(--text-secondary);
-            margin-top: 4px;
-        }
 
         .control-group {
             display: flex;
@@ -2416,7 +2403,6 @@
                     </button>
                 </div>
             </div>
-            <div id="lastModified" class="last-modified"></div>
         </div>
 
         <div class="controls">
@@ -2490,17 +2476,19 @@
                 </div>
             </div>
             
-            <!-- Status Info (DEV badge and timestamp) -->
+            <!-- Status Info (DEV badge only) -->
             <div class="sidebar-status" style="display: flex;">
                 <div>
                     <span class="dev-badge" id="devBadge" style="display: none;">DEV</span>
                 </div>
-                <div class="last-modified" id="lastModified"></div>
             </div>
             
             <!-- User Info at Bottom -->
             <div class="sidebar-user-info" id="sidebarUserInfo" style="display: none;">
-                <div class="user-info" id="sidebarUserName">Not signed in</div>
+                <div style="flex: 1;">
+                    <div class="user-info" id="sidebarUserName">Not signed in</div>
+                    <div class="last-modified" id="lastModified" style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;"></div>
+                </div>
                 <button class="sign-out-button" onclick="signOut()" style="display: none;">
                     Sign Out
                 </button>
