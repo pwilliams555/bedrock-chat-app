@@ -122,19 +122,22 @@
         
         .new-chat-btn-sidebar {
             width: 100%;
-            padding: 12px 16px;
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
+            padding: 8px 12px;
+            background: none;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-weight: 500;
+            font-size: 14px;
             cursor: pointer;
-            margin-bottom: 1rem;
             transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
         
         .new-chat-btn-sidebar:hover {
-            background-color: #0d8f6f;
+            background-color: var(--hover-color);
         }
         
         .sidebar-section {
@@ -1327,8 +1330,12 @@
             const sidebarUserName = document.getElementById('sidebarUserName');
             if (sidebarUserInfo && sidebarUserName) {
                 sidebarUserInfo.style.display = 'flex';
-                // Make sure the username shows in sidebar
-                sidebarUserName.innerHTML = account.username || account.name || 'User';
+                // Debug: log account object to see available properties
+                console.log('Account object for sidebar:', account);
+                // Try different account properties
+                const displayName = account.username || account.name || account.preferredUsername || account.localAccountId || 'User';
+                sidebarUserName.innerHTML = displayName;
+                console.log('Setting sidebar username to:', displayName);
             }
         }
 
@@ -2367,10 +2374,20 @@
                     <div class="chat-history-panel">
             <!-- New Chat Button -->
             <div class="sidebar-new-chat">
-                <button onclick="startNewChat()" class="new-chat-btn-sidebar">+ New Chat</button>
+                <button onclick="startNewChat()" class="new-chat-btn-sidebar">
+                    <span style="font-size: 16px;">✎️</span>
+                    <span>New Chat</span>
+                </button>
             </div>
             
-            <!-- Collapsible Settings Section -->
+            <!-- Chat History Section -->
+            <div class="chat-history-header">
+                Chat History
+                <button onclick="refreshChatList()" style="float: right; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px;" title="Refresh Chat List">↻</button>
+            </div>
+            <div id="chatList"></div>
+            
+            <!-- Collapsible Settings Section (moved to bottom) -->
             <div class="sidebar-settings">
                 <div class="settings-header" onclick="toggleSettings()">
                     <span>⚙️ Settings</span>
@@ -2402,13 +2419,6 @@
                     </div>
                 </div>
             </div>
-            
-            <!-- Chat History Section -->
-            <div class="chat-history-header">
-                Chat History
-                <button onclick="refreshChatList()" style="float: right; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px;" title="Refresh Chat List">↻</button>
-            </div>
-            <div id="chatList"></div>
             
             <!-- User Info at Bottom -->
             <div class="sidebar-user-info" id="sidebarUserInfo" style="display: none;">
