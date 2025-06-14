@@ -1335,17 +1335,19 @@
             // Also show sidebar user info with username
             const sidebarUserInfo = document.getElementById('sidebarUserInfo');
             const sidebarUserName = document.getElementById('sidebarUserName');
-            const sidebarSignOutButton = document.getElementById('signOutButton');
+            const sidebarSignOutButton = document.querySelector('#sidebarUserInfo .sign-out-button');
             if (sidebarUserInfo && sidebarUserName) {
                 sidebarUserInfo.style.display = 'flex';
-                // Try different account properties
-                const displayName = account.username || account.name || account.preferredUsername || account.localAccountId || 'User';
-                sidebarUserName.innerHTML = displayName;
-                sidebarUserName.style.display = 'block'; // Force display
-                console.log('Setting sidebar username to:', displayName);
-                // Show the sign out button too
+                // Get username and strip domain
+                const fullUsername = account.username || account.name || account.preferredUsername || account.localAccountId || 'User';
+                const shortUsername = fullUsername.includes('@') ? fullUsername.split('@')[0] : fullUsername;
+                sidebarUserName.innerHTML = shortUsername;
+                sidebarUserName.style.display = 'block';
+                console.log('Setting sidebar username to:', shortUsername);
+                // Show the sign out button
                 if (sidebarSignOutButton) {
                     sidebarSignOutButton.style.display = 'inline-block';
+                    console.log('Showing sidebar sign out button');
                 }
             }
         }
@@ -1459,7 +1461,10 @@
                         const time = new Date(chat.timestamp).toLocaleString();
                         
                         // Safely handle the last message display
-                        const lastMessage = chat.last_message || 'No content';
+                        const rawMessage = chat.last_message || 'No content';
+                        // Truncate to first 3-4 words like ChatGPT/Claude
+                        const words = rawMessage.split(' ');
+                        const lastMessage = words.length > 4 ? words.slice(0, 4).join(' ') + '...' : rawMessage;
                         
                         chatItem.innerHTML = `
                             <div class="chat-item-content">
@@ -2434,7 +2439,7 @@
             <!-- User Info at Bottom -->
             <div class="sidebar-user-info" id="sidebarUserInfo" style="display: none;">
                 <div class="user-info" id="sidebarUserName">Not signed in</div>
-                <button id="signOutButton" class="sign-out-button" onclick="signOut()" style="display: none;">
+                <button class="sign-out-button" onclick="signOut()" style="display: none;">
                     Sign Out
                 </button>
             </div>
