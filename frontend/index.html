@@ -1371,7 +1371,7 @@
                 // Get username and strip domain
                 const fullUsername = account.username || account.name || account.preferredUsername || account.localAccountId || 'User';
                 const shortUsername = fullUsername.includes('@') ? fullUsername.split('@')[0] : fullUsername;
-                sidebarUserName.innerHTML = shortUsername;
+                sidebarUserName.innerHTML = `${shortUsername} <span style="color: #ff6b35;">[edgeworth]</span>`;
                 sidebarUserName.style.display = 'block';
                 console.log('Setting sidebar username to:', shortUsername);
                 // Show the sign out button
