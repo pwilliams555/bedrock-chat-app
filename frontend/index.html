@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat with AWS Bedrock - TEST</title>
+    <title>Chat with AWS Bedrock</title>
 
     <!-- Add Microsoft Authentication Library -->
     <script src="https://alcdn.msauth.net/browser/2.30.0/js/msal-browser.min.js"></script>
@@ -50,30 +50,92 @@
         }
 
         .controls {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            padding: 1rem;
-            background-color: var(--bg-secondary);
-            flex-wrap: wrap;
-            justify-content: space-between;
+            display: none; /* Hide the top controls bar */
         }
 
         .chat-container {
             display: flex;
             flex: 1;
             position: relative;
-            height: calc(100vh - 140px); /* Subtract header + controls height */
-            overflow: hidden; /* Prevent container from scrolling */
+            height: calc(100vh - 70px); /* Only subtract header height */
+            overflow: hidden;
         }
 
         .chat-history-panel {
-            width: 260px;
+            width: 300px; /* Slightly wider for controls */
             background-color: var(--bg-secondary);
             border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
-            overflow: hidden; /* Contain the scrolling */
+            overflow: hidden;
+        }
+
+        /* Sidebar Controls Styling */
+        .sidebar-controls {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            flex-shrink: 0;
+        }
+        
+        .new-chat-btn-sidebar {
+            width: 100%;
+            padding: 12px 16px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 1rem;
+            transition: background-color 0.2s;
+        }
+        
+        .new-chat-btn-sidebar:hover {
+            background-color: #0d8f6f;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 1rem;
+        }
+        
+        .sidebar-section label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+        }
+        
+        .sidebar-section select {
+            width: 100%;
+            padding: 8px 12px;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 14px;
+        }
+        
+        .sidebar-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .sidebar-btn {
+            width: 100%;
+            padding: 8px 12px;
+            background-color: var(--bg-tertiary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        
+        .sidebar-btn:hover {
+            background-color: var(--hover-color);
         }
 
         .chat-history-header {
@@ -113,7 +175,7 @@
         .input-area {
             position: fixed;
             bottom: 0;
-            left: 260px;
+            left: 300px; /* Updated for wider sidebar */
             right: 0;
             padding: 1.5rem;
             background-color: var(--bg-secondary);
@@ -2216,6 +2278,36 @@
 
         <div class="chat-container">
                     <div class="chat-history-panel">
+            <!-- Main Controls Section -->
+            <div class="sidebar-controls">
+                <button onclick="startNewChat()" class="new-chat-btn-sidebar">+ New Chat</button>
+                
+                <div class="sidebar-section">
+                    <label for="modelSelect">Model</label>
+                    <select id="modelSelect">
+                        <option value="arn:aws:bedrock:us-east-1:401390491831:inference-profile/us.anthropic.claude-3-7-sonnet-20250219-v1:0">Claude 3.7 Sonnet</option>
+                        <option value="arn:aws:bedrock:us-east-1:401390491831:inference-profile/us.anthropic.claude-3-5-sonnet-20241022-v2:0">Claude 3.5 Sonnet v2</option>
+                        <option value="amazon.nova-micro-v1:0">Nova Micro</option>
+                        <option value="amazon.nova-lite-v1:0">Nova Lite</option>
+                        <option value="amazon.nova-pro-v1:0">Nova Pro</option>
+                    </select>
+                </div>
+                
+                <div class="sidebar-section">
+                    <label for="kbSelect">Knowledge Base</label>
+                    <select id="kbSelect">
+                        <option value="none">None</option>
+                    </select>
+                </div>
+                
+                <div class="sidebar-buttons">
+                    <button onclick="showTestModal()" class="sidebar-btn">Test All Models</button>
+                    <button onclick="toggleFeedbackList()" class="sidebar-btn">View Feedback</button>
+                    <button onclick="showFeedbackModal()" class="sidebar-btn">Give Feedback</button>
+                </div>
+            </div>
+            
+            <!-- Chat History Section -->
             <div class="chat-history-header">
                 Chat History
                 <button onclick="refreshChatList()" style="float: right; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px;" title="Refresh Chat List">↻</button>
