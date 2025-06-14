@@ -1233,14 +1233,14 @@
                 // Update page title
                 document.title = '[DEV] ' + document.title;
                 
-                // Show dev badge
-                const devBadge = document.getElementById('devBadge');
-                console.log('Found devBadge element:', devBadge);
-                if (devBadge) {
-                    devBadge.style.display = 'inline-block';
-                    console.log('DEV badge should now be visible');
+                // Show dev indicator
+                const devIndicator = document.getElementById('devIndicator');
+                console.log('Found devIndicator element:', devIndicator);
+                if (devIndicator) {
+                    devIndicator.style.display = 'inline';
+                    console.log('DEV indicator should now be visible');
                 } else {
-                    console.error('DEV badge element not found!');
+                    console.error('DEV indicator element not found!');
                 }
                 
                 // Add a subtle visual indicator by slightly changing the header color
@@ -2394,7 +2394,7 @@
     <div id="mainContent">
         <div class="header">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h2>Chat with AWS Bedrock <span class="dev-badge" id="devBadge" style="display: none;">DEV</span></h2>
+                <h2>Chat with AWS Bedrock</h2>
                 <div class="auth-container">
                     <a href="dev/index.html" id="betaLink" class="beta-link" style="display: none;">Try Beta Version →</a>
                     <div class="user-info" id="userInfo"></div>
@@ -2476,18 +2476,15 @@
                 </div>
             </div>
             
-            <!-- Status Info (DEV badge only) -->
-            <div class="sidebar-status" style="display: flex;">
-                <div>
-                    <span class="dev-badge" id="devBadge" style="display: none;">DEV</span>
-                </div>
-            </div>
             
             <!-- User Info at Bottom -->
             <div class="sidebar-user-info" id="sidebarUserInfo" style="display: none;">
                 <div style="flex: 1;">
                     <div class="user-info" id="sidebarUserName">Not signed in</div>
-                    <div class="last-modified" id="lastModified" style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;"></div>
+                    <div style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;">
+                        <span id="lastModified"></span>
+                        <span id="devIndicator" style="color: #ff6b35; margin-left: 8px; display: none;">dev</span>
+                    </div>
                 </div>
                 <button class="sign-out-button" onclick="signOut()" style="display: none;">
                     Sign Out
