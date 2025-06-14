@@ -298,16 +298,15 @@
         }
         
         .last-modified {
-            font-size: 11px;
-            color: var(--text-primary) !important;
+            font-size: 10px;
+            color: #ffffff !important;
             display: block !important;
-            background-color: green; /* Temporary debug to see if it exists */
             padding: 2px 4px;
             border-radius: 3px;
             white-space: nowrap;
-            max-width: 200px;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            opacity: 0.8;
+            text-align: right;
+            min-width: 80px;
         }
 
         .input-container {
@@ -1568,7 +1567,14 @@
             const lastModifiedElement = document.getElementById('lastModified');
             console.log('Found lastModified element:', lastModifiedElement);
             if (lastModifiedElement) {
-                const timeText = `Last modified: ${lastModified.toLocaleString('en-US', options)}`;
+                // Shorter format for limited space
+                const shortOptions = { 
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit'
+                };
+                const timeText = lastModified.toLocaleString('en-US', shortOptions);
                 lastModifiedElement.textContent = timeText;
                 console.log('Set timestamp to:', timeText);
             } else {
