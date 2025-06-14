@@ -1324,11 +1324,11 @@
             
             // Also show sidebar user info with username
             const sidebarUserInfo = document.getElementById('sidebarUserInfo');
-            const sidebarUserInfoDiv = document.getElementById('userInfo');
-            if (sidebarUserInfo && sidebarUserInfoDiv) {
+            const sidebarUserName = document.getElementById('sidebarUserName');
+            if (sidebarUserInfo && sidebarUserName) {
                 sidebarUserInfo.style.display = 'flex';
-                // Make sure the username shows in sidebar too
-                sidebarUserInfoDiv.innerHTML = `${account.username}`;
+                // Make sure the username shows in sidebar
+                sidebarUserName.innerHTML = account.username || account.name || 'User';
             }
         }
 
@@ -2382,7 +2382,7 @@
                     <span>⚙️ Settings</span>
                     <span class="collapse-icon collapsed" id="settingsIcon">▼</span>
                 </div>
-                <div class="settings-content collapsed" id="settingsContent">
+                <div class="settings-content collapsed" id="settingsContent" style="max-height: 0; padding: 0 1rem;">
                     <div class="sidebar-section">
                         <label for="modelSelect">Model</label>
                         <select id="modelSelect">
@@ -2418,7 +2418,7 @@
             
             <!-- User Info at Bottom -->
             <div class="sidebar-user-info" id="sidebarUserInfo" style="display: none;">
-                <div class="user-info" id="userInfo"></div>
+                <div class="user-info" id="sidebarUserName">Not signed in</div>
                 <button id="signOutButton" class="sign-out-button" onclick="signOut()">
                     Sign Out
                 </button>
