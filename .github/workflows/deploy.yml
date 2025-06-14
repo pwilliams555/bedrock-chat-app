@@ -1,0 +1,38 @@
+name: Deploy to S3
+
+on:
+  push:
+    branches:
+      - main      # Deploy to production
+      - develop   # Deploy to dev
+
+permissions:
+  id-token: write   # Required for OIDC
+  contents: read    # Required for checkout
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::401390491831:role/github-actions-s3-deploy
+        role-session-name: github-actions-deploy
+        aws-region: us-east-1
+        
+    - name: Deploy to S3 Dev
+      if: github.ref == 'refs/heads/develop'
+      run: |
+        aws s3 sync frontend/ s3://edgeworth-apps/model-chat/dev/ --delete
+        echo "✅ Deployed to DEV: https://edgeworth-apps.s3.amazonaws.com/model-chat/dev/index.html"
+        
+    - name: Deploy to S3 Production
+      if: github.ref == 'refs/heads/main'
+      run: |
+        aws s3 sync frontend/ s3://edgeworth-apps/model-chat/ --delete
+        echo "✅ Deployed to PROD: https://edgeworth-apps.s3.amazonaws.com/model-chat/index.html"
