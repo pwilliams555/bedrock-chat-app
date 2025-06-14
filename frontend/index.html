@@ -277,14 +277,16 @@
             padding: 0.5rem 1rem;
             border-top: 1px solid var(--border-color);
             font-size: 12px;
-            color: var(--text-secondary);
-            display: flex;
+            color: var(--text-primary);
+            display: flex !important;
             justify-content: space-between;
             align-items: center;
             flex-shrink: 0;
-            background-color: var(--bg-secondary);
+            background-color: #333333;
             min-height: 40px;
             box-sizing: border-box;
+            border: 2px solid red; /* Temporary debug border */
+            z-index: 1000;
         }
         
         .dev-badge {
@@ -298,7 +300,9 @@
         
         .last-modified {
             font-size: 11px;
-            opacity: 0.7;
+            opacity: 1;
+            color: var(--text-primary);
+            background-color: blue; /* Temporary debug background */
         }
 
         .input-container {
