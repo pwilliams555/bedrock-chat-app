@@ -304,9 +304,9 @@
             padding: 2px 4px;
             border-radius: 3px;
             white-space: nowrap;
-            opacity: 0.8;
             text-align: right;
             min-width: 80px;
+            background-color: rgba(255,255,255,0.1); /* Subtle background to ensure visibility */
         }
 
         .input-container {
@@ -1567,16 +1567,13 @@
             const lastModifiedElement = document.getElementById('lastModified');
             console.log('Found lastModified element:', lastModifiedElement);
             if (lastModifiedElement) {
-                // Shorter format for limited space
-                const shortOptions = { 
-                    month: 'short', 
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit'
-                };
-                const timeText = lastModified.toLocaleString('en-US', shortOptions);
+                // Try simple format first
+                const timeText = `${lastModified.getMonth() + 1}/${lastModified.getDate()} ${lastModified.getHours()}:${lastModified.getMinutes().toString().padStart(2, '0')}`;
                 lastModifiedElement.textContent = timeText;
+                lastModifiedElement.innerHTML = timeText; // Force set both ways
                 console.log('Set timestamp to:', timeText);
+                console.log('Element innerHTML:', lastModifiedElement.innerHTML);
+                console.log('Element textContent:', lastModifiedElement.textContent);
             } else {
                 console.error('lastModified element not found!');
             }
