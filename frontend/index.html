@@ -245,10 +245,17 @@
             align-items: center;
             font-size: 14px;
             color: var(--text-secondary);
+            min-height: 50px; /* Ensure minimum height */
         }
         
         .sidebar-user-info .user-info {
             flex: 1;
+            color: var(--text-primary); /* Make username more visible */
+            font-weight: 500;
+            max-width: 180px; /* Prevent overflow */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
         
         .sidebar-user-info .sign-out-button {
@@ -1328,14 +1335,18 @@
             // Also show sidebar user info with username
             const sidebarUserInfo = document.getElementById('sidebarUserInfo');
             const sidebarUserName = document.getElementById('sidebarUserName');
+            const sidebarSignOutButton = document.getElementById('signOutButton');
             if (sidebarUserInfo && sidebarUserName) {
                 sidebarUserInfo.style.display = 'flex';
-                // Debug: log account object to see available properties
-                console.log('Account object for sidebar:', account);
                 // Try different account properties
                 const displayName = account.username || account.name || account.preferredUsername || account.localAccountId || 'User';
                 sidebarUserName.innerHTML = displayName;
+                sidebarUserName.style.display = 'block'; // Force display
                 console.log('Setting sidebar username to:', displayName);
+                // Show the sign out button too
+                if (sidebarSignOutButton) {
+                    sidebarSignOutButton.style.display = 'inline-block';
+                }
             }
         }
 
@@ -2423,7 +2434,7 @@
             <!-- User Info at Bottom -->
             <div class="sidebar-user-info" id="sidebarUserInfo" style="display: none;">
                 <div class="user-info" id="sidebarUserName">Not signed in</div>
-                <button id="signOutButton" class="sign-out-button" onclick="signOut()">
+                <button id="signOutButton" class="sign-out-button" onclick="signOut()" style="display: none;">
                     Sign Out
                 </button>
             </div>
