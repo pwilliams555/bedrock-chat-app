@@ -1493,9 +1493,9 @@
                         
                         // Safely handle the last message display
                         const rawMessage = chat.last_message || 'No content';
-                        // Truncate to first 3-4 words like ChatGPT/Claude
+                        // Truncate to first 8 words for more context
                         const words = rawMessage.split(' ');
-                        const lastMessage = words.length > 4 ? words.slice(0, 4).join(' ') + '...' : rawMessage;
+                        const lastMessage = words.length > 8 ? words.slice(0, 8).join(' ') + '...' : rawMessage;
                         
                         chatItem.innerHTML = `
                             <div class="chat-item-content">
