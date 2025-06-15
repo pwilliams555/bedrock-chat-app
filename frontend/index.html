@@ -258,18 +258,18 @@
             white-space: nowrap;
         }
         
-        .sidebar-user-info .sign-out-button {
+        .sidebar-user-info .sign-out-link {
             background: none;
-            border: 1px solid var(--border-color);
+            border: none;
             color: var(--text-secondary);
-            padding: 4px 8px;
-            border-radius: 4px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
+            text-decoration: underline;
+            padding: 0;
         }
         
-        .sidebar-user-info .sign-out-button:hover {
-            background-color: var(--hover-color);
+        .sidebar-user-info .sign-out-link:hover {
+            color: var(--text-primary);
         }
         
         /* Sidebar status info (DEV badge and timestamp) */
@@ -359,7 +359,7 @@
             padding: 12px 16px;
             border: 1px solid var(--border-color);
             border-radius: 8px;
-            font-size: 14px;
+            font-size: 13px;
             background-color: var(--bg-tertiary);
             color: var(--text-primary);
             font-family: inherit;
@@ -466,6 +466,7 @@
             padding: 1rem;
             border-radius: 8px;
             line-height: 1.5;
+            font-size: 14px;
             word-wrap: break-word; /* Ensure long words wrap */
             overflow-wrap: break-word; /* Additional browser support */
             max-width: 100%; /* Prevent messages from exceeding container */
@@ -574,6 +575,7 @@
         /* Code formatting styles */
         .formatted-content {
             line-height: 1.6;
+            font-size: 14px;
             color: var(--text-primary);
             word-wrap: break-word; /* Ensure long words wrap */
             overflow-wrap: anywhere; /* More aggressive wrapping for better content fitting */
@@ -1366,7 +1368,7 @@
             // Also show sidebar user info with username
             const sidebarUserInfo = document.getElementById('sidebarUserInfo');
             const sidebarUserName = document.getElementById('sidebarUserName');
-            const sidebarSignOutButton = document.querySelector('#sidebarUserInfo .sign-out-button');
+            const sidebarSignOutButton = document.querySelector('#sidebarUserInfo .sign-out-link');
             if (sidebarUserInfo && sidebarUserName) {
                 sidebarUserInfo.style.display = 'flex';
                 // Get username and strip domain
@@ -2481,15 +2483,17 @@
             <!-- User Info at Bottom -->
             <div class="sidebar-user-info" id="sidebarUserInfo" style="display: none;">
                 <div style="flex: 1;">
-                    <div class="user-info" id="sidebarUserName">Not signed in</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="user-info" id="sidebarUserName">Not signed in</div>
+                        <button class="sign-out-link" onclick="signOut()" style="display: none;">
+                            sign out
+                        </button>
+                    </div>
                     <div style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;">
                         <span id="lastModified"></span>
                         <span id="devIndicator" style="color: #ff6b35; margin-left: 8px; display: none;">dev</span>
                     </div>
                 </div>
-                <button class="sign-out-button" onclick="signOut()" style="display: none;">
-                    Sign Out
-                </button>
             </div>
         </div>
             <div class="chat-main">
