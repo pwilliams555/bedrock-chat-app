@@ -25,6 +25,89 @@ jobs:
         role-session-name: github-actions-deploy
         aws-region: us-east-1
         
+    - name: Update bucket policy with current IP (dev only)
+      if: github.ref == 'refs/heads/develop'
+      run: |
+        # Get current public IP
+        CURRENT_IP=$(curl -s https://ipinfo.io/ip)
+        echo "Current IP: $CURRENT_IP"
+        
+        # Create updated policy with IP access
+        cat > updated-policy.json << EOF
+        {
+            "Version": "2012-10-17",
+            "Statement": [
+                {
+                    "Sid": "BucketListAndLocation",
+                    "Effect": "Allow",
+                    "Principal": "*",
+                    "Action": [
+                        "s3:ListBucket",
+                        "s3:GetBucketLocation"
+                    ],
+                    "Resource": "arn:aws:s3:::edgeworth-apps",
+                    "Condition": {
+                        "StringEquals": {
+                            "aws:SourceVpce": "vpce-0b3b313c3e74a1f80"
+                        }
+                    }
+                },
+                {
+                    "Sid": "FolderAllow",
+                    "Effect": "Allow",
+                    "Principal": "*",
+                    "Action": [
+                        "s3:PutObject",
+                        "s3:GetObject",
+                        "s3:DeleteObject",
+                        "s3:GetObjectVersion",
+                        "s3:GetObjectAcl"
+                    ],
+                    "Resource": "arn:aws:s3:::edgeworth-apps/*",
+                    "Condition": {
+                        "StringEquals": {
+                            "aws:SourceVpce": "vpce-0b3b313c3e74a1f80"
+                        }
+                    }
+                },
+                {
+                    "Sid": "GitHubActions",
+                    "Effect": "Allow",
+                    "Principal": {
+                        "AWS": "arn:aws:iam::401390491831:role/github-actions-s3-deploy"
+                    },
+                    "Action": [
+                        "s3:PutObject",
+                        "s3:DeleteObject",
+                        "s3:ListBucket"
+                    ],
+                    "Resource": [
+                        "arn:aws:s3:::edgeworth-apps",
+                        "arn:aws:s3:::edgeworth-apps/*"
+                    ]
+                },
+                {
+                    "Sid": "HomeIPAccess",
+                    "Effect": "Allow",
+                    "Principal": "*",
+                    "Action": [
+                        "s3:GetObject"
+                    ],
+                    "Resource": "arn:aws:s3:::edgeworth-apps/*",
+                    "Condition": {
+                        "IpAddress": {
+                            "aws:SourceIp": "$CURRENT_IP/32"
+                        }
+                    }
+                }
+            ]
+        }
+        EOF
+        
+        # Update bucket policy
+        aws s3api put-bucket-policy --bucket edgeworth-apps --policy file://updated-policy.json
+        echo "✅ Updated bucket policy to allow access from IP: $CURRENT_IP"
+        
     - name: Deploy to S3 Dev
       if: github.ref == 'refs/heads/develop'
       run: |
