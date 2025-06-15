@@ -96,12 +96,19 @@
         }
         
         .collapse-icon {
-            transition: transform 0.2s;
-            font-size: 14px;
+            transition: all 0.2s ease;
+            font-size: 16px;
+            font-weight: bold;
+            color: var(--text-secondary);
+            user-select: none;
         }
         
         .collapse-icon.collapsed {
-            transform: rotate(-90deg);
+            color: var(--text-primary);
+        }
+        
+        .collapse-icon:hover {
+            color: var(--text-primary);
         }
         
         .settings-content {
@@ -189,6 +196,32 @@
             border-bottom: 1px solid var(--border-color);
             font-weight: 600;
             flex-shrink: 0; /* Prevent header from shrinking */
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+        
+        .chat-history-header:hover {
+            background-color: var(--hover-color);
+        }
+        
+        .chat-history-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .chat-history-content.collapsed {
+            max-height: 0;
+            overflow: hidden;
+        }
+        
+        .chat-history-content {
+            max-height: 500px; /* When expanded */
         }
 
         #chatList {
@@ -2561,6 +2594,29 @@
             
             content.classList.toggle('collapsed');
             icon.classList.toggle('collapsed');
+            
+            // Update icon text
+            if (content.classList.contains('collapsed')) {
+                icon.textContent = '+';
+            } else {
+                icon.textContent = '−';
+            }
+        }
+        
+        // Toggle collapsible chat history section
+        function toggleChatHistory() {
+            const content = document.getElementById('chatHistoryContent');
+            const icon = document.getElementById('chatHistoryIcon');
+            
+            content.classList.toggle('collapsed');
+            icon.classList.toggle('collapsed');
+            
+            // Update icon text
+            if (content.classList.contains('collapsed')) {
+                icon.textContent = '+';
+            } else {
+                icon.textContent = '−';
+            }
         }
     </script>
 </head>
@@ -2622,17 +2678,22 @@
             </div>
             
             <!-- Chat History Section -->
-            <div class="chat-history-header">
-                Chat History
-                <button onclick="refreshChatList()" style="float: right; background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px;" title="Refresh Chat List">↻</button>
+            <div class="chat-history-header" onclick="toggleChatHistory()">
+                <span>💬 Chat History</span>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button onclick="refreshChatList(); event.stopPropagation();" style="background: none; border: none; color: var(--text-secondary); cursor: pointer; font-size: 16px; padding: 4px;" title="Refresh Chat List">↻</button>
+                    <span class="collapse-icon" id="chatHistoryIcon">−</span>
+                </div>
             </div>
-            <div id="chatList"></div>
+            <div class="chat-history-content" id="chatHistoryContent">
+                <div id="chatList"></div>
+            </div>
             
             <!-- Collapsible Settings Section (moved to bottom) -->
             <div class="sidebar-settings">
                 <div class="settings-header" onclick="toggleSettings()">
                     <span>⚙️ Settings</span>
-                    <span class="collapse-icon collapsed" id="settingsIcon">▼</span>
+                    <span class="collapse-icon collapsed" id="settingsIcon">+</span>
                 </div>
                 <div class="settings-content collapsed" id="settingsContent">
                     <div class="sidebar-section">
