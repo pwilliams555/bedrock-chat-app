@@ -28,9 +28,15 @@ jobs:
     - name: Update bucket policy with current IP (dev only)
       if: github.ref == 'refs/heads/develop'
       run: |
-        # Get current public IP
-        CURRENT_IP=$(curl -s https://ipinfo.io/ip)
-        echo "Current IP: $CURRENT_IP"
+        # Read home IP from committed file
+        if [[ -f .home-ip ]]; then
+          CURRENT_IP=$(cat .home-ip)
+          echo "Using home IP from file: $CURRENT_IP"
+        else
+          # Fallback to detection (though this will be GitHub's IP)
+          CURRENT_IP=$(curl -s https://ipinfo.io/ip)
+          echo "No .home-ip file found, using detected IP: $CURRENT_IP"
+        fi
         
         # Create updated policy with IP access
         cat > updated-policy.json << EOF
