@@ -2483,15 +2483,17 @@
             <!-- User Info at Bottom -->
             <div class="sidebar-user-info" id="sidebarUserInfo" style="display: none;">
                 <div style="flex: 1;">
-                    <div class="user-info" id="sidebarUserName">Not signed in</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="user-info" id="sidebarUserName">Not signed in</div>
+                        <button class="sign-out-link" onclick="signOut()" style="display: none;">
+                            sign out
+                        </button>
+                    </div>
                     <div style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;">
                         <span id="lastModified"></span>
                         <span id="devIndicator" style="color: #ff6b35; margin-left: 8px; display: none;">dev</span>
                     </div>
                 </div>
-                <button class="sign-out-link" onclick="signOut()" style="display: none;">
-                    sign out
-                </button>
             </div>
         </div>
             <div class="chat-main">
