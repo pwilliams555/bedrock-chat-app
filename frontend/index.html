@@ -1736,6 +1736,7 @@
                     API_URL = REGIONAL_API_URL;
                     KB_API_URL = REGIONAL_KB_API_URL;
                     apiDetectionComplete = true;
+                    updateAPIIndicator('regional');
                     return;
                 }
 
@@ -1748,6 +1749,7 @@
                     API_URL = PRIVATE_API_URL;
                     KB_API_URL = PRIVATE_KB_API_URL;
                     apiDetectionComplete = true;
+                    updateAPIIndicator('private');
                     return;
                 }
 
@@ -1756,9 +1758,32 @@
                 API_URL = REGIONAL_API_URL;
                 KB_API_URL = REGIONAL_KB_API_URL;
                 apiDetectionComplete = true;
+                updateAPIIndicator('unknown');
             })();
 
             return apiDetectionPromise;
+        }
+
+        // Update API indicator in the UI
+        function updateAPIIndicator(apiType) {
+            const indicator = document.getElementById('apiIndicator');
+            if (indicator) {
+                indicator.style.display = 'inline-block';
+                switch(apiType) {
+                    case 'regional':
+                        indicator.textContent = '🌐 regional';
+                        indicator.style.color = '#10a37f';
+                        break;
+                    case 'private':
+                        indicator.textContent = '🏢 private';
+                        indicator.style.color = '#9333ea';
+                        break;
+                    case 'unknown':
+                        indicator.textContent = '❓ unknown';
+                        indicator.style.color = '#ef4444';
+                        break;
+                }
+            }
         }
 
         // Smart API caller with automatic fallback
@@ -1805,9 +1830,11 @@
                     if (forKnowledgeBases) {
                         KB_API_URL = alternateAPI;
                         API_URL = alternateAPI === PRIVATE_KB_API_URL ? PRIVATE_API_URL : REGIONAL_API_URL;
+                        updateAPIIndicator(alternateAPI === PRIVATE_KB_API_URL ? 'private' : 'regional');
                     } else {
                         API_URL = alternateAPI;
                         KB_API_URL = alternateAPI === PRIVATE_API_URL ? PRIVATE_KB_API_URL : REGIONAL_KB_API_URL;
+                        updateAPIIndicator(alternateAPI === PRIVATE_API_URL ? 'private' : 'regional');
                     }
                     
                     console.log('✅ Alternate API succeeded, updated endpoints');
@@ -2647,6 +2674,7 @@
                     <div style="font-size: 10px; color: var(--text-secondary); margin-top: 2px;">
                         <span id="lastModified"></span>
                         <span id="devIndicator" style="color: #ff6b35; margin-left: 8px; display: none;">dev</span>
+                        <span id="apiIndicator" style="color: #10a37f; margin-left: 8px; display: none; font-size: 9px;"></span>
                     </div>
                 </div>
             </div>
