@@ -1399,6 +1399,10 @@
         async function loadInitialData() {
             try {
                 console.log('Loading initial data...');
+                
+                // Detect working API endpoints first
+                await detectWorkingAPI();
+                
                 // Get current user
                 const accounts = msalInstance.getAllAccounts();
                 if (accounts.length === 0) {
@@ -1406,7 +1410,7 @@
                 }
                 const currentUser = accounts[0];
 
-                // Load both KBs and chat list in parallel
+                // Load both KBs and chat list in parallel after API detection
                 await Promise.all([
                     loadKnowledgeBases(),
                     loadChatList(currentUser.username)
@@ -1419,8 +1423,8 @@
         // Modify the loadKnowledgeBases function
         async function loadKnowledgeBases() {
             try {
-                console.log('Fetching knowledge bases from:', KB_API_URL);
-                const response = await fetch(KB_API_URL);
+                console.log('Fetching knowledge bases...');
+                const response = await makeResilientAPICall('', {}, true);
                 console.log('Response status:', response.status);
                 const data = await response.json();
                 console.log('Received data:', data);
@@ -1472,7 +1476,7 @@
         async function loadChatList(userEmail) {
             try {
                 console.log('Loading chat list for user:', userEmail);
-                const response = await fetch(`${API_URL}?action=list_chats&user_email=${encodeURIComponent(userEmail)}`);
+                const response = await makeResilientAPICall(`?action=list_chats&user_email=${encodeURIComponent(userEmail)}`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -1661,8 +1665,159 @@
         };
         marked.setOptions({ renderer: renderer });
 
-        const API_URL = "https://8dxumk5kp9.execute-api.us-east-1.amazonaws.com/prod/chat";
-        const KB_API_URL = "https://8dxumk5kp9.execute-api.us-east-1.amazonaws.com/prod/knowledge-bases";
+        // Smart API detection - try Regional API first (works from home), fallback to Private API (works from VPC)
+        const REGIONAL_API_URL = "https://8dxumk5kp9.execute-api.us-east-1.amazonaws.com/prod/chat";
+        const REGIONAL_KB_API_URL = "https://8dxumk5kp9.execute-api.us-east-1.amazonaws.com/prod/knowledge-bases";
+        const PRIVATE_API_URL = "https://6uj8oni86a.execute-api.us-east-1.amazonaws.com/prod/chat";
+        const PRIVATE_KB_API_URL = "https://6uj8oni86a.execute-api.us-east-1.amazonaws.com/prod/knowledge-bases";
+        
+        // Global variables to store the working API URLs (determined at runtime)
+        let API_URL = REGIONAL_API_URL;
+        let KB_API_URL = REGIONAL_KB_API_URL;
+        let apiDetectionComplete = false;
+        let apiDetectionPromise = null;
+
+        // API Detection Function
+        async function detectWorkingAPI() {
+            if (apiDetectionComplete) {
+                console.log('API detection already complete, using:', API_URL);
+                return;
+            }
+
+            // Return existing promise if detection is in progress
+            if (apiDetectionPromise) {
+                console.log('API detection in progress, waiting...');
+                return apiDetectionPromise;
+            }
+
+            console.log('🔍 Starting API endpoint detection...');
+            
+            apiDetectionPromise = (async () => {
+                // Test function with short timeout
+                async function testAPI(url, label) {
+                    try {
+                        console.log(`Testing ${label}: ${url}`);
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+                        
+                        const response = await fetch(url + '?action=health_check', {
+                            method: 'GET',
+                            signal: controller.signal,
+                            headers: {
+                                'Accept': 'application/json'
+                            }
+                        });
+                        
+                        clearTimeout(timeoutId);
+                        console.log(`${label} response:`, response.status);
+                        
+                        // Consider it working if we get any response (even 400/401/etc)
+                        // The key is that we can reach the API endpoint
+                        return response.status !== 0; // 0 means network error
+                        
+                    } catch (error) {
+                        console.log(`${label} failed:`, error.name, error.message);
+                        
+                        // 403 Forbidden means we reached the API but access was denied (VPC endpoint blocking)
+                        // This still indicates the API is reachable but not allowed from this network
+                        if (error.name === 'AbortError') {
+                            console.log(`${label} timed out`);
+                        }
+                        return false;
+                    }
+                }
+
+                // Test Regional API first (preferred for external access)
+                console.log('🌐 Testing Regional API Gateway...');
+                const regionalWorks = await testAPI(REGIONAL_KB_API_URL, 'Regional API');
+                
+                if (regionalWorks) {
+                    console.log('✅ Regional API is working - using Regional endpoints');
+                    API_URL = REGIONAL_API_URL;
+                    KB_API_URL = REGIONAL_KB_API_URL;
+                    apiDetectionComplete = true;
+                    return;
+                }
+
+                // Test Private API as fallback
+                console.log('🏢 Testing Private API Gateway...');
+                const privateWorks = await testAPI(PRIVATE_KB_API_URL, 'Private API');
+                
+                if (privateWorks) {
+                    console.log('✅ Private API is working - using Private endpoints');
+                    API_URL = PRIVATE_API_URL;
+                    KB_API_URL = PRIVATE_KB_API_URL;
+                    apiDetectionComplete = true;
+                    return;
+                }
+
+                // If both fail, default to Regional and let normal error handling take over
+                console.log('⚠️ Both APIs failed detection - defaulting to Regional API');
+                API_URL = REGIONAL_API_URL;
+                KB_API_URL = REGIONAL_KB_API_URL;
+                apiDetectionComplete = true;
+            })();
+
+            return apiDetectionPromise;
+        }
+
+        // Smart API caller with automatic fallback
+        async function makeResilientAPICall(endpoint, options = {}, forKnowledgeBases = false) {
+            // Ensure API detection is complete
+            await detectWorkingAPI();
+            
+            let currentAPI = forKnowledgeBases ? KB_API_URL : API_URL;
+            let alternateAPI = forKnowledgeBases ? 
+                (currentAPI === REGIONAL_KB_API_URL ? PRIVATE_KB_API_URL : REGIONAL_KB_API_URL) :
+                (currentAPI === REGIONAL_API_URL ? PRIVATE_API_URL : REGIONAL_API_URL);
+            
+            async function attemptCall(apiUrl, isRetry = false) {
+                try {
+                    const fullUrl = apiUrl + (endpoint && !endpoint.startsWith('?') ? '/' + endpoint : endpoint || '');
+                    console.log(`${isRetry ? 'Retry' : 'Initial'} API call to:`, fullUrl);
+                    
+                    const response = await fetch(fullUrl, options);
+                    
+                    // Check for specific error codes that indicate network-level blocking
+                    if (response.status === 403 && !isRetry) {
+                        console.log('🚫 403 Forbidden - trying alternate API...');
+                        throw new Error('Network blocked - trying alternate API');
+                    }
+                    
+                    return response;
+                } catch (error) {
+                    console.log(`API call failed:`, error.message);
+                    if (isRetry) {
+                        throw error; // Don't retry again
+                    }
+                    throw error; // Let outer catch handle retry
+                }
+            }
+            
+            try {
+                return await attemptCall(currentAPI);
+            } catch (error) {
+                console.log('🔄 Primary API failed, trying alternate API...');
+                try {
+                    const response = await attemptCall(alternateAPI, true);
+                    
+                    // Update the working API URLs if alternate succeeded
+                    if (forKnowledgeBases) {
+                        KB_API_URL = alternateAPI;
+                        API_URL = alternateAPI === PRIVATE_KB_API_URL ? PRIVATE_API_URL : REGIONAL_API_URL;
+                    } else {
+                        API_URL = alternateAPI;
+                        KB_API_URL = alternateAPI === PRIVATE_API_URL ? PRIVATE_KB_API_URL : REGIONAL_KB_API_URL;
+                    }
+                    
+                    console.log('✅ Alternate API succeeded, updated endpoints');
+                    return response;
+                } catch (alternateError) {
+                    console.error('❌ Both APIs failed');
+                    throw alternateError;
+                }
+            }
+        }
 
         // Add chat management
         let currentChatId = null;
@@ -1848,7 +2003,7 @@
 
             try {
                 console.log('Loading chat history for:', chatId);
-                const response = await fetch(`${API_URL}?chat_id=${chatId}&user_email=${encodeURIComponent(userEmail)}`);
+                const response = await makeResilientAPICall(`?chat_id=${chatId}&user_email=${encodeURIComponent(userEmail)}`);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -1956,7 +2111,7 @@
                     payload.image = pastedImageData;
                 }
 
-                const response = await fetch(API_URL, {
+                const response = await makeResilientAPICall('', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2040,7 +2195,7 @@
                 }
                 const currentUser = accounts[0];
 
-                const response = await fetch(`${API_URL}?chat_id=${chatId}&user_email=${encodeURIComponent(currentUser.username)}`, {
+                const response = await makeResilientAPICall(`?chat_id=${chatId}&user_email=${encodeURIComponent(currentUser.username)}`, {
                     method: 'DELETE',
                     headers: {
                         'Content-Type': 'application/json',
@@ -2163,7 +2318,7 @@
                         payload.knowledgeBaseId = kbId;
                     }
 
-                    const response = await fetch(API_URL, {
+                    const response = await makeResilientAPICall('', {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify(payload)
@@ -2233,7 +2388,7 @@
                 const accounts = msalInstance.getAllAccounts();
                 const userEmail = accounts.length > 0 ? accounts[0].username : 'anonymous';
                 
-                const response = await fetch(`${API_URL}`, {
+                const response = await makeResilientAPICall('', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -2261,7 +2416,7 @@
 
         async function loadFeedbackList() {
             try {
-                const response = await fetch(`${API_URL}?action=list_feedback`);
+                const response = await makeResilientAPICall('?action=list_feedback');
                 if (!response.ok) throw new Error('Failed to load feedback');
                 
                 const data = await response.json();
