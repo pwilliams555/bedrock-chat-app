@@ -258,18 +258,18 @@
             white-space: nowrap;
         }
         
-        .sidebar-user-info .sign-out-button {
+        .sidebar-user-info .sign-out-link {
             background: none;
-            border: 1px solid var(--border-color);
+            border: none;
             color: var(--text-secondary);
-            padding: 4px 8px;
-            border-radius: 4px;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
+            text-decoration: underline;
+            padding: 0;
         }
         
-        .sidebar-user-info .sign-out-button:hover {
-            background-color: var(--hover-color);
+        .sidebar-user-info .sign-out-link:hover {
+            color: var(--text-primary);
         }
         
         /* Sidebar status info (DEV badge and timestamp) */
@@ -1368,7 +1368,7 @@
             // Also show sidebar user info with username
             const sidebarUserInfo = document.getElementById('sidebarUserInfo');
             const sidebarUserName = document.getElementById('sidebarUserName');
-            const sidebarSignOutButton = document.querySelector('#sidebarUserInfo .sign-out-button');
+            const sidebarSignOutButton = document.querySelector('#sidebarUserInfo .sign-out-link');
             if (sidebarUserInfo && sidebarUserName) {
                 sidebarUserInfo.style.display = 'flex';
                 // Get username and strip domain
@@ -2489,8 +2489,8 @@
                         <span id="devIndicator" style="color: #ff6b35; margin-left: 8px; display: none;">dev</span>
                     </div>
                 </div>
-                <button class="sign-out-button" onclick="signOut()" style="display: none;">
-                    Sign Out
+                <button class="sign-out-link" onclick="signOut()" style="display: none;">
+                    sign out
                 </button>
             </div>
         </div>
